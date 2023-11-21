@@ -1,0 +1,11 @@
+[*.java]
+tab_width = 4
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+
+[*.gradle]
+tab_width = 4
+indent_size = tab
+indent_style = tab
+insert_final_newline = true

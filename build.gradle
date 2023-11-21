@@ -1,0 +1,90 @@
+plugins {
+	id 'java'
+	id 'maven-publish'
+	alias libs.plugins.unimined
+	alias libs.plugins.patchbase apply false
+	alias libs.plugins.licenser
+	alias libs.plugins.lombox
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+		unimined.wagYourMaven('releases')
+		mavenLocal() {
+			content {
+				includeGroup 'org.bukkit'
+				includeGroupByRegex 'org.bukkit.*'
+			}
+		}
+	}
+
+	sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+	tasks.withType(JavaCompile).configureEach {
+		it.options.encoding = 'UTF-8'
+	}
+
+	configurations.configureEach {
+		resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+			if (details.requested.group.startsWith('org.lwjgl')) {
+				details.useVersion libs.versions.lwjgl.get()
+			} else if (details.requested.name == 'jinput') {
+				details.useVersion libs.versions.jinput.get()
+			} else if (details.requested.name == 'guava') {
+				details.useVersion libs.versions.guava.get()
+			} else if (details.requested.group.startsWith('org.ow2.asm')) {
+				if (details.requested.name == 'asm-all') {
+					details.useTarget libs.asm.get()
+				} else details.useVersion(libs.versions.asm.get())
+			}
+		}
+	}
+
+	processResources {
+		inputs.property 'version', project.version
+	}
+}
+
+group = 'cpw.mods'
+base.archivesName = 'fml'
+version = '2.2.106-SNAPSHOT'
+
+// this is just here so we can test the outputs easier and clean between tests
+unimined.useGlobalCache = false
+
+configurations {
+	clientCompileOnly.extendsFrom(compileOnly)
+	serverCompileOnly.extendsFrom(compileOnly)
+	clientRuntimeOnly.extendsFrom(runtimeOnly)
+	serverRuntimeOnly.extendsFrom(runtimeOnly)
+	clientImplementation.extendsFrom(implementation)
+	serverImplementation.extendsFrom(implementation)
+}
+
+dependencies {
+	annotationProcessor libs.bundles.annotations
+	compileOnly libs.bundles.annotations
+	testImplementation libs.junit.get()
+}
+
+jar {
+	from 'FML.CREDITS'
+	from 'FML.LICENSE'
+}
+
+import com.diffplug.gradle.spotless.JavaExtension
+
+spotless {
+	format('FML', JavaExtension) {
+		licenseHeaderFile(rootProject.file("headers/FML.HEADER"))
+		target 'src/*/java/cpw/mods/**/*.java'
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from(components.java)
+		}
+	}
+}

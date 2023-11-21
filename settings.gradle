@@ -1,0 +1,15 @@
+pluginManagement {
+	repositories {
+		mavenCentral()
+		maven { name = 'WagYourTail'; url = 'https://maven.wagyourtail.xyz/releases' }
+		maven { name = 'WagYourTail Snapshots'; url = 'https://maven.wagyourtail.xyz/snapshots' }
+		gradlePluginPortal()
+		mavenLocal()
+	}
+}
+
+rootProject.name = "ForgeModLoader"
+
+includeBuild 'class-diff'
+
+include 'minecraft'

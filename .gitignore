@@ -1,10 +1,38 @@
-/bin
-/minecraft_server
-/mods
-/fmlbuild.properties
-/fmlversion.properties
-/difflist.txt
-/.metadata/
-/eclipse/.metadata/
-/target
-fmlbranding.properties
+# Gradle
+.gradle/
+build/
+out/
+classes/
+
+# Eclipse
+*.launch
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Fleet
+.fleet/
+
+# Visual Studio Code
+.settings/
+.vscode/
+bin/
+.classpath
+.project
+
+# Eclipse JDT LS
+workspace/
+
+# macOS
+*.DS_Store
+
+# Mapped JARs
+/libs/**.jar
+
+# Minecraft Source Files
+
+/minecraft/src/client/**.java
+/minecraft/src/server/**.java

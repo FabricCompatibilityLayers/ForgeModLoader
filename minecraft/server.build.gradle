@@ -1,0 +1,73 @@
+import java.nio.file.Files
+
+sourceSets {
+	server {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
+}
+
+dependencies {
+	serverImplementation libs.bundles.server
+}
+
+processServerResources {
+	from sourceSets.main.resources.srcDirs
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+unimined.minecraft(sourceSets.server) {
+	version libs.versions.minecraft.get()
+	side 'server'
+
+	mappings {
+		mcp('legacy', libs.versions.mappings.get())
+	}
+
+	jarMod {
+		transforms("fml.transform")
+	}
+
+	minecraftRemapper.config {
+		ignoreConflicts(true)
+	}
+
+	runs {
+		config('server') {
+			disabled = true
+		}
+	}
+
+	defaultRemapJar = false
+}
+
+def classBinDiffDirPath = projectDir.toPath().resolve('bin_patches/server')
+
+tasks.register('generateServerPatches') {
+	group 'minecraft'
+	description 'Generates diff patches for the modified Minecraft Client class files'
+	dependsOn('build')
+
+	doLast {
+		def originalClasses = getMinecraftClasses()
+		def patchedClasses = new HashMap<String, String>()
+
+		compileServerJava.outputs.files.forEach {
+			if (it.directory) Files.walk(it.toPath()).forEach {
+				def file = it.toFile()
+				if (file.toString().endsWith('.class')) patchedClasses.put(file.name, file)
+			}
+		}
+
+		classBinDiffDirPath.deleteDir()
+		outputs.files createPatchFiles(originalClasses, patchedClasses)
+	}
+}
+
+def getMinecraftClasses() {
+	def classes = new HashMap<String, String>()
+	zipTree(unimined.minecrafts[sourceSets.server].minecraftFileDev.toPath()).forEach {
+		if (it.toString().endsWith('.class')) classes.put(it.getName(), it)
+	}
+	classes
+}
