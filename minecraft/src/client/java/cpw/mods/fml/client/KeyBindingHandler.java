@@ -1,0 +1,45 @@
+/*
+ * The FML Forge Mod Loader suite.
+ * Copyright (C) 2012 cpw
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+package cpw.mods.fml.client;
+
+import lombok.Getter;
+import net.minecraft.src.KeyBinding;
+import cpw.mods.fml.common.IKeyHandler;
+import cpw.mods.fml.common.ModContainer;
+
+/**
+ * @author cpw
+ */
+public class KeyBindingHandler implements IKeyHandler {
+    @Getter
+    private final boolean shouldRepeat;
+    @Getter(onMethod_ = @Override)
+    private final KeyBinding keyBinding;
+    private final ModContainer modContainer;
+
+    public KeyBindingHandler(KeyBinding keyHandler, boolean allowRepeat, ModContainer modContainer) {
+        this.keyBinding = keyHandler;
+        this.shouldRepeat = allowRepeat;
+        this.modContainer = modContainer;
+    }
+
+    /**
+     * @return the modContainer
+     */
+    @Override
+    public ModContainer getOwningContainer() {
+        return modContainer;
+    }
+}

@@ -3,13 +3,13 @@ pluginManagement {
 		mavenCentral()
 		maven { name = 'WagYourTail'; url = 'https://maven.wagyourtail.xyz/releases' }
 		maven { name = 'WagYourTail Snapshots'; url = 'https://maven.wagyourtail.xyz/snapshots' }
+		maven { name = 'Jem Networks Snapshots'; url = 'https://maven.jemnetworks.com/releases' }
+		maven { name = 'Jem Networks Snapshots'; url = 'https://maven.jemnetworks.com/snapshots' }
 		gradlePluginPortal()
 		mavenLocal()
 	}
 }
 
 rootProject.name = "ForgeModLoader"
-
-includeBuild 'class-diff'
 
 include 'minecraft'

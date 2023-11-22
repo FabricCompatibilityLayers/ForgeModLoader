@@ -30,7 +30,8 @@
          var2.field_35212_aW.field_35758_c = p_50100_1_.field_50071_c;
      }
 +    
-+    /* (non-Javadoc)
++    /**
++     * {@inheritDoc}
 +     * @see net.minecraft.src.NetHandler#func_44028_a(net.minecraft.src.Packet250CustomPayload)
 +     */
 +    @Override

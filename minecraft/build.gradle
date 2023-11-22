@@ -1,15 +1,10 @@
 apply plugin: 'java'
+apply plugin: 'io.freefair.lombok'
 apply plugin: 'xyz.wagyourtail.unimined'
-
-import io.github.prcraftmc.classdiff.ClassDiffer
-import io.github.prcraftmc.classdiff.format.DiffWriter
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.tree.ClassNode
+apply plugin: 'xyz.wagyourtail.patchbase-creator'
 
 sourceSets {
-	main.java.srcDirs = []
 	test.java.srcDirs = []
-	main.resources.srcDirs = []
 	test.resources.srcDirs = []
 }
 
@@ -22,54 +17,26 @@ configurations {
 	serverImplementation.extendsFrom(implementation)
 }
 
-java.nio.file.Path classBinDiffDirPath = projectDir.toPath().resolve('bin_patches')
+unimined.minecraft(/* common */) {
+	version libs.versions.minecraft.get()
+	side 'server'
 
-def createPatchFiles(Map<String, String> originalClasses, Map<String, String> modifiedClasses) {
-	def patchFiles = new ArrayList<java.nio.file.Path>()
-	modifiedClasses.each {
-		def modifiedClass = it.value
-		def originalClass = originalClasses[it.key]
-
-		if (originalClass == null) {
-			logger.error "No corresponding class found for ${modifiedClass}"
-			return
-		}
-
-//		if (new File(originalClass) == new File(modifiedClass)) return
-
-		// Read the classes
-		def originalNode = new ClassNode(), modifiedNode = new ClassNode(), writer = new DiffWriter()
-		new ClassReader(new FileInputStream(originalClass)).accept(originalNode, 0)
-		new ClassReader(new FileInputStream(modifiedClass)).accept(modifiedNode, 0)
-
-		// Diff the classes
-		logger.info "Creating a patch file for: ${it.key}"
-		ClassDiffer.diff originalNode, modifiedNode, writer
-
-		// Create the patch file
-		File patchFile = classBinDiffDirPath.resolve("${modifiedNode.name}.cpatch").toFile()
-		if (patchFile.isDirectory()) throw new IOException("Patch file for ${modifiedNode.name} is a directory")
-		if (patchFile.exists()) patchFile.delete()
-		file(patchFile.parent).mkdirs()
-		patchFile.createNewFile()
-
-		// Write the diff to the patch file
-		def stream = new FileOutputStream(patchFile)
-		stream.write writer.toByteArray()
-		stream.close()
-		patchFiles.add(patchFile.toPath())
-		logger.lifecycle "Wrote patch file: ${classBinDiffDir.relativePath(patchFile).toString().replace('/', '.')}"
+	mappings {
+		mcp('legacy', libs.versions.mappings.get())
 	}
-	patchFiles
+
+	jarMod {
+	}
+
+	minecraftRemapper.config {
+		ignoreConflicts(true)
+	}
+
+	runs.config('server') {
+		javaVersion = null
+		disabled = true
+	}
 }
 
 apply from: 'client.build.gradle'
 apply from: 'server.build.gradle'
-
-tasks.register('generateAllPatches') {
-	group 'minecraft'
-	description 'Generates diff patches for the modified Minecraft class files'
-
-	dependsOn('generateClientPatches')
-	dependsOn('generateServerPatches')
-}
